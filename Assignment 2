@@ -1,0 +1,416 @@
+# subtract numbers
+"""
+def main():
+    print ("This program subtracts one number from another.")
+    num1 = float(input ("Enter first number: "))
+    num2 = float(input ("Enter second number: "))
+    total = num1-num2
+    print ("The result is " + str(total))
+
+if __name__ == '__main__':
+    main()
+    """
+    
+    
+#random numbers
+"""NUM_RANDOM = 10
+MIN_RANDOM = 0
+MAX_RANDOM = 100
+
+import random
+
+def main():
+    for i in range(NUM_RANDOM):
+        print(random.randint(MIN_RANDOM,MAX_RANDOM))
+
+if __name__ == '__main__':
+    main()"""
+    
+    
+#Liftoff!
+"""
+def main():
+    count_down = 10
+    for i in range(count_down):
+        print(str(count_down))  
+        count_down -= 1
+    print("Liftoff!")
+
+if __name__ == '__main__':
+    main()"""
+    
+    
+#Khansole Academy    
+"""
+import random
+import math
+
+""""Constants"""
+MIN_DIGIT = 10
+MAX_DIGIT = 99
+WIN_NUM_GLOBAL = 3
+"""----------"""
+
+def main():
+    win_num_local = 0
+    while win_num_local < WIN_NUM_GLOBAL:
+        num1 = int(random.randint(MIN_DIGIT,MAX_DIGIT))
+        num2 = int(random.randint(MIN_DIGIT,MAX_DIGIT))
+        print("What is "+str(num1)+"+ "+str(num2)+"?")
+        Ans1 = int(input("Your answer: "))   
+        if Ans1 == (num1 + num2):
+            win_num_local += 1
+            print("Correct! You've gotten "+str(win_num_local)+" correct in a row.")
+        
+        else:
+            print("Incorrect. The expected answer is "+str(num1+num2)+".")
+            win_num_local = 0
+    print("Congratulations! You mastered addition!")
+
+if __name__ == '__main__':
+    main()"""
+    
+    
+    
+#Nimm
+"""
+import math
+import random
+"""Constants"""
+START_AMOUNT = 20
+END_AMOUNT = 0
+"""---------"""
+
+def main():
+    print("There are "+str(START_AMOUNT)+" stones left")
+    current_stones = START_AMOUNT
+    while current_stones>END_AMOUNT:
+        count_p1 = 0
+        count_p2 = 0
+        player1 = int(input("Player 1 would you like to remove 1 or 2 stones? "))
+        while player1 < 1 or player1> 2:
+            player1 = int(input("Please enter 1 or 2: "))
+        print("")
+        current_stones = current_stones - player1
+        count_p1 += 1
+        if current_stones > 0:
+            print("There are "+str(current_stones)+" stones left")
+            player2 = int(input("Player 2 would you like to remove 1 or 2 stones? "))
+            while player2 < 1 or player2> 2:
+                player2 = int(input("Please enter 1 or 2: "))
+            print("")
+            current_stones = current_stones - player2
+            count_p2 += 1
+            if current_stones != 0:
+                print("There are "+str(current_stones)+" stones left")
+    if count_p1 > count_p2:
+        print("Player 2 wins!")
+    else:
+        print("Player 1 wins!")
+              
+              
+if __name__ == '__main__':
+    main()"""
+    
+    
+ ##########################Extensions#############################   
+    
+    
+#Slot Machine
+
+"""
+import random
+import math
+import time
+
+#Constants
+START_BALANCE = 10
+MAX_DIGIT = 9
+MIN_DIGIT = 1
+SMALL_WIN = 10
+JACKPOT = 100
+SPIN_TIME = .5
+SLOT_COST = 1
+        
+def main():
+    print('Welcome to the slot machine game!\n Press "s" to spin.\n Press "b" to see remaining tokens.\n Press "h" to see instructions.\n Press "e" to exit game.')
+    print("")
+    balance = START_BALANCE
+    while True:
+        user_input = input("")
+        if user_input == "s":
+            balance = slot() + balance 
+        elif user_input == "b":
+            print("Balance is "+str(balance)+".")
+        elif user_input == "h":
+            print("User Manual")
+        elif user_input == "e":
+            break
+
+#This function will run the main operation of the slot machine.
+def slot():
+    time.sleep(.75)
+    
+    first_num = random.randint(MIN_DIGIT,MAX_DIGIT)
+    print(first_num, end="", flush=True)
+    time.sleep(SPIN_TIME)
+    second_num = random.randint(MIN_DIGIT,MAX_DIGIT)
+    print(second_num, end="", flush=True)
+    time.sleep(SPIN_TIME)
+    third_num = random.randint(MIN_DIGIT,MAX_DIGIT)
+    print(third_num, flush=True)
+    time.sleep(SPIN_TIME)
+    if first_num == second_num == third_num:
+        print("You just won 100 tokens!")
+        return JACKPOT - SLOT_COST
+    elif first_num == second_num or first_num == third_num:
+        print("You just won 10 tokens!")
+        return SMALL_WIN - SLOT_COST
+    elif second_num == third_num:
+        print("You just won 10 tokens!")
+        return SMALL_WIN - SLOT_COST
+    else:
+        print("Better luck next time.")
+        return -SLOT_COST    
+if __name__ == "__main__":
+    main()
+    
+ 
+ 
+"""
+
+
+
+#Computer Nimm, winner is the one that takes the last stone (opposit of the normal). Computer will always win.
+""""
+import math
+import random
+
+"""Constants"""
+START_AMOUNT = 20
+END_AMOUNT = 0
+"""---------"""
+
+def main():
+    print("Play the Ancient Game of Nimm against a computer!")
+    print("")
+    print("There are "+str(START_AMOUNT)+" stones left in the pile.")
+    current_stones = START_AMOUNT
+    while current_stones>END_AMOUNT:
+        count_p1 = 0
+        count_p2 = 0
+        if current_stones == 1:
+            print("Computer removes 1 stone.")
+            print("")
+            player1 = 1
+            current_stones = current_stones - player1
+            count_p1 += 1  
+        if (current_stones % 2) == 0:
+            player1 = int(1)
+        else:
+            player1 = int(2)
+        print("Computer takes "+str(player1)+". \n")
+        while player1 < 1 or player1> 2:
+            player1 = int(input("Only 1 or 2 stones can be taken. How many would you like to remove 1 or 2?"))
+        current_stones = current_stones - player1
+        count_p1 += 1
+        if current_stones > 0:
+            print("There are "+str(current_stones)+" stones in the pile.")
+            player2 = int(input("Player 2 would you like to remove 1 or 2 stones? "))
+            print("")
+            while player2 < 1 or player2> 2:
+                player2 = int(input("Only 1 or 2 stones can be taken. How many would you like to remove 1 or 2?"))
+            current_stones = current_stones - player2
+            count_p2 += 1
+            print("There are "+str(current_stones)+" stones in the pile.")
+    if count_p1 > count_p2:
+        print("Computer wins!")
+    else:
+        print("Player 2 wins!")
+
+        
+              
+if __name__ == '__main__':
+    main()
+
+""""
+
+
+
+
+#Extend Khansole, do math. Hint: Use a calculator for multiplication and division. (I probably should edit it so that it rounds...)
+
+"""
+import random
+import math
+
+""""Constants"""
+MIN_DIGIT = 10
+MAX_DIGIT = 99
+WIN_NUM_GLOBAL = 3
+"""----------"""
+
+def main():
+    print("Hello, welcome to Khansole Acadamey Extended!")
+    print("You will be asked to solve simple math problems.")
+    print("Answer correctly three times in a row to win!")
+    
+    win_num_local = 0
+    choose_math = "String"
+        
+    while win_num_local < WIN_NUM_GLOBAL:
+        choose_math = input("Would you like to Add, Subtract, Multiply, or Divide? ")    
+        if str(choose_math) == "Add":
+            num1 = int(random.randint(MIN_DIGIT,MAX_DIGIT))
+            num2 = int(random.randint(MIN_DIGIT,MAX_DIGIT))
+            print("What is "+str(num1)+"+ "+str(num2)+"?")
+            Ans1 = int(input("Your answer: "))   
+            if Ans1 == (num1 + num2):
+                win_num_local += 1
+                print("Correct! You've gotten "+str(win_num_local)+" correct in a row.")
+        
+            else:
+                print("Incorrect. The expected answer is "+str(num1+num2)+".")
+                win_num_local = 0
+            
+        else:
+            if str(choose_math) == "Subtract":
+                num1 = int(random.randint(MIN_DIGIT,MAX_DIGIT))
+                num2 = int(random.randint(MIN_DIGIT,MAX_DIGIT))
+                print("What is "+str(num1)+"- "+str(num2)+"?")
+                Ans1 = int(input("Your answer: "))   
+                if Ans1 == (num1 - num2):
+                    win_num_local += 1
+                    print("Correct! You've gotten "+str(win_num_local)+" correct in a row.")
+        
+                else:
+                    print("Incorrect. The expected answer is "+str(num1-num2)+".")
+                    win_num_local = 0
+                
+            else:
+                if str(choose_math) == "Multiply":
+                    num1 = int(random.randint(MIN_DIGIT,MAX_DIGIT))
+                    num2 = int(random.randint(MIN_DIGIT,MAX_DIGIT))
+                    print("What is "+str(num1)+"* "+str(num2)+"?")
+                    Ans1 = int(input("Your answer: "))   
+                    if Ans1 == (num1 * num2):
+                        win_num_local += 1
+                        print("Correct! You've gotten "+str(win_num_local)+" correct in a row.")
+        
+                    else:
+                        print("Incorrect. The expected answer is "+str(num1*num2)+".")
+                        win_num_local = 0
+                    
+                else:
+                    if str(choose_math) == "Divide":
+                        num1 = int(random.randint(MIN_DIGIT,MAX_DIGIT))
+                        num2 = int(random.randint(MIN_DIGIT,MAX_DIGIT))
+                        print("What is "+str(num1)+"/ "+str(num2)+"?")
+                        Ans1 = float(input("Your answer: "))   
+                        if Ans1 == (num1 / num2):
+                            win_num_local += 1
+                            print("Correct! You've gotten "+str(win_num_local)+" correct in a row.")
+        
+                        else:
+                            print("Incorrect. The expected answer is "+str(num1/num2)+".")
+                            win_num_local = 0
+                    else:
+                        print("Please pick one of the operations.")
+    print("Congratulations! U r gud at math")
+if __name__ == '__main__':
+    main()
+
+""""""""""
+
+
+
+
+#Hailstones
+""""""
+import random
+import math
+
+""""Constants"""
+GOAL_NUM = 1
+"""----------"""
+
+def main():
+    counter = 0
+    n = int(input("Pick the starting number for hailstone: "))
+    while int(n) > GOAL_NUM:
+        if (int(n) % 2) == 0:
+            print(str(n)+" is even, so I take half: "+str((int(n/2))))
+            n = int(n/2)
+            counter += 1
+        else:
+            print(str(n)+" is odd, so I make 3n + 1: "+str((int(n)*3 + 1)))
+            n = (int(n)*3 + 1)
+            counter += 1
+    print("The process took "+str(counter)+" steps to reach 1.")
+
+if __name__ == '__main__':
+    main()
+
+
+""""""""""""""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
