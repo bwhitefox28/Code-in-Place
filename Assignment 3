@@ -1,0 +1,64 @@
+
+"""
+If you would like to add more patches, just change the N_ROW and N_COLS Constants.
+"""
+import random
+from simpleimage import SimpleImage
+
+'''Constants'''
+N_ROWS = 2
+N_COLS = 3
+PATCH_SIZE = 222
+C_WIDTH = N_COLS * PATCH_SIZE
+C_HEIGHT = N_ROWS * PATCH_SIZE
+PATCH_NAME = 'images/simba-sq.jpg'
+
+def main():
+    '''showing the original image first'''
+    patch = SimpleImage(PATCH_NAME)
+    patch.show()
+
+    '''create bigger canvass, print patches to fill up canvass'''
+    canvass = SimpleImage.blank(C_WIDTH,C_HEIGHT)
+    for col in range(N_COLS):
+        for row in range(N_ROWS):
+            paste_patch(col, row, canvass, patch)
+    canvass.show()       
+
+def paste_patch(c_col,c_row, canvass, patch):
+    #The color of each patch is generated randomly by color_patch()
+    #After coloring the patch and pasting it to the canvass we have
+    #to reset the patch image back to normal so that brightness does
+    #not scale. To do this, we return the numbers we used to multiple
+    #assign those numbers to variables. And, at the end of the loop,
+    #divide by those numbers so that the patch color is reset before 
+    #the next loop.
+    reds, greens, blues = color_patch(patch)
+    for x in range(patch.width):
+        for y in range(patch.height):
+            p_pixel = patch.get_pixel(x,y)
+            c_x = x+(c_col*PATCH_SIZE)
+            c_y = y+(c_row*PATCH_SIZE)
+            canvass.set_pixel(c_x, c_y, p_pixel)
+            p_pixel.red = p_pixel.red / reds 
+            p_pixel.green = p_pixel.green / greens
+            p_pixel.blue = p_pixel.blue / blues
+    return canvass
+
+def color_patch(patch):
+    p_pixel = patch.get_pixel
+    #random.random() gives a value between 0-1.
+    #I wanted a random multiplier between 1-2 so I added two of them together.
+    reds = random.random() + random.random()
+    greens = random.random() + random.random()
+    blues = random.random() + random.random()
+    for p_pixel in patch:
+        p_pixel.red *= reds
+        p_pixel.green *= greens
+        p_pixel.blue *= blues  
+    return reds,greens,blues
+
+if __name__ == '__main__':
+    main()
+
+
