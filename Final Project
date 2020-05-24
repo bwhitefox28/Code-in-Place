@@ -7,6 +7,7 @@ import tkinter
 import time
 import random
 import math
+from PIL import ImageTk, Image
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -14,74 +15,139 @@ CANVAS_WIDTH = 500      # Width of drawing canvas in pixels
 CANVAS_HEIGHT = 600     # Height of drawing canvas in pixels
 CHANGE_X_START = 10
 BEEPER_SIZE = 20
-KAREL_SIZE = 30
+KAREL_HEIGHT = 30
+KAREL_WIDTH = 40
 BUG_SIZE = 30
-KAREL_Y = CANVAS_HEIGHT - KAREL_SIZE
+KAREL_Y = CANVAS_HEIGHT - KAREL_HEIGHT
+ATTACK_INTERVAL = 3 #time between code bug attacks
+ATTACK_LENGTH = 20   #length(size) of the code bug attack
+BEEPER_SPEED = -5
+ATTACK_SPEED = 5
 
 def main():
     canvas = make_canvas(CANVAS_WIDTH, CANVAS_HEIGHT, 'Bug Invaders')
-    KAREL = canvas.create_rectangle(CANVAS_WIDTH/2 - KAREL_SIZE/2, KAREL_Y, CANVAS_WIDTH/2 + KAREL_SIZE/2, CANVAS_HEIGHT, fill='blue', outline='blue')
-    BUG = canvas.create_rectangle(CANVAS_WIDTH/2,0,CANVAS_WIDTH/2 + BUG_SIZE,BUG_SIZE, fill = "red", outline = "red")
-    BEEPER = canvas.create_rectangle(CANVAS_WIDTH+10, CANVAS_HEIGHT+10, CANVAS_WIDTH+10+BEEPER_SIZE, CANVAS_HEIGHT+10+BEEPER_SIZE, fill = "blue", outline = "blue")
-    canvas.bind("<Button-1>", lambda event: mouse_left_click(event, canvas, KAREL, BEEPER))
+    karel = canvas.create_rectangle(CANVAS_WIDTH/2-KAREL_WIDTH/2, KAREL_Y, CANVAS_WIDTH/2 + KAREL_WIDTH/2, CANVAS_HEIGHT, fill='blue', outline='blue')
+    # create karel using an image
+    imgk = Image.open('images/KAREL2.png')
+    pimgk = ImageTk.PhotoImage(imgk)
+    karel2 = canvas.create_image(CANVAS_WIDTH/2 - KAREL_WIDTH/2, KAREL_Y, anchor=tkinter.NW, image=pimgk)
+
+    # resize karel
+    imgk = imgk.resize((42, 32))
+    pimgk = ImageTk.PhotoImage(imgk)
+    canvas.itemconfigure(karel2, image=pimgk)
+    canvas.update()
+
+    code_bug = canvas.create_rectangle(CANVAS_WIDTH/2,0,CANVAS_WIDTH/2 + BUG_SIZE,BUG_SIZE, fill = "red", outline = "red")
+    # create bug using an image
+    imgb = Image.open('images/BUG2.png')
+    pimgb = ImageTk.PhotoImage(imgb)
+    bug2 = canvas.create_image(CANVAS_WIDTH/2,0, anchor=tkinter.NW, image=pimgb)
+
+    # resize bug
+    imgb = imgb.resize((42, 43))
+    pimgb = ImageTk.PhotoImage(imgb)
+    canvas.itemconfigure(bug2, image=pimgb)
+    canvas.update()
+
+    beeper = canvas.create_rectangle(CANVAS_WIDTH+10, CANVAS_HEIGHT+10, CANVAS_WIDTH+10+BEEPER_SIZE, CANVAS_HEIGHT+10+BEEPER_SIZE, fill = "blue", outline = "blue")
+    attack = canvas.create_rectangle(-500, 0, -480, ATTACK_LENGTH, fill = "red", outline = "red")
+    canvas.bind("<Button-1>", lambda event: mouse_left_click(event, canvas, karel, beeper))
     bugdx = 6
     bugdy = 0
+    attack_count = 0
     while True:
 
-        # Karel tracks the x location of the mouse
-        mouse_x = canvas.winfo_pointerx()
-        canvas.moveto(KAREL, mouse_x, KAREL_Y)
+        # Karel's center point location moves to the canvas x location of the cursor
+        canvas_x = canvas.winfo_rootx() #this returns coordinates of the canvas' top left corner (relative to screen 0,0)
+        mouse_x = canvas.winfo_pointerx() - canvas_x -(KAREL_HEIGHT/2) #this returns the cursor coordinates (relative to screen 0,0), then subtracts the canvas position to return the cursor coordinates relative to the canvas. (Half of karel size taken out so center of Karel tracks with cursor.)
+        karel_coord = canvas.coords(karel)
 
-        canvas.move(BUG, bugdx, bugdy)
-        if bug_hits_right_wall(canvas, BUG):
-            bug_coord = canvas.coords(BUG)
+        if karel_coord == [-4999.0, 5001.0, -4959.0, 5031.0]: #Specific "death" location if Karel dies.
+            canvas.moveto(karel2, karel_coord[0], karel_coord[1])
+        else:
+            canvas.moveto(karel, mouse_x, KAREL_Y)
+            canvas.moveto(karel2, mouse_x, KAREL_Y)
+
+
+        #This moves the code bug accross the screen, code bug will bounce and move down when hitting a side wall
+        bug_coord = canvas.coords(code_bug)
+        canvas.move(code_bug, bugdx, bugdy)
+        canvas.move(bug2,bugdx, bugdy)
+        if bug_hits_right_wall(canvas, code_bug):
             bounce_past_frame = bug_coord[2] - CANVAS_WIDTH
-            print(bounce_past_frame)
-            print(bug_coord)
-            canvas.moveto(BUG, bug_coord[0] - bounce_past_frame, bug_coord[1] + 10)
+            canvas.moveto(code_bug, bug_coord[0] - bounce_past_frame, bug_coord[1] + 10)
+            canvas.moveto(bug2, bug_coord[0] - bounce_past_frame, bug_coord[1] + 10)
             bugdx *= -1
 
-        if bug_hits_left_wall(canvas, BUG):
-            bug_coord = canvas.coords(BUG)
+        #This is separated from the above because the calculation of how much Karel "bounces" past the wall is calculated differently
+        if bug_hits_left_wall(canvas, code_bug):
             bounce_past_frame = bug_coord[0] - 0
-            print(bounce_past_frame)
             print(bug_coord)
-            canvas.moveto(BUG, bug_coord[0] + bounce_past_frame, bug_coord[1] + 10)
+            print(bounce_past_frame)
+            canvas.moveto(code_bug, bug_coord[0] + bounce_past_frame, bug_coord[1] + 10)
             bugdx *= -1
 
-        #When the mouse left click is pressed, beeper is moved in front of KAREL at y-coordinate 532 + beeper's size, the beeper in this position moves up as a projectile
-        beeper_coord = canvas.coords(BEEPER)
-        if beeper_coord[1] <= 532+BEEPER_SIZE:
-            canvas.move(BEEPER, 0, -5)
+        #Code bug attacks!
+        attack_coord = canvas.coords(attack)
+        if attack_count == 0:
+            attack_count = code_bug_attacks(canvas, code_bug, attack, attack_count)
+        if 10 < attack_coord[0] < CANVAS_WIDTH - 10:
+            canvas.move(attack, 0, ATTACK_SPEED)
+        if attack_coord[1] >= CANVAS_HEIGHT:
+            attack_count = 0
 
-        if beeper_hit_bugs(canvas,BUG):
-            canvas.moveto(BUG, -1 - BUG_SIZE, -1 - BUG_SIZE)
-            canvas.moveto(BEEPER, CANVAS_WIDTH+1, CANVAS_HEIGHT+1)
+        #When the mouse left click is pressed, karel shoots a beeper. (Beeper is moved in front of Karel from off screen.)
+        beeper_coord = canvas.coords(beeper)
+        if beeper_coord[1] <= karel_coord[1]-BEEPER_SIZE+1:
+            canvas.move(beeper, 0, BEEPER_SPEED)
+
+        #Test to see if the beeper and code bug share space. If true, moves the beeper and code bug off screen to simulate their deletion.
+        if beeper_hit_bugs(canvas,code_bug):
+            canvas.moveto(code_bug, -1 - BUG_SIZE, -1 - BUG_SIZE)
+            canvas.moveto(bug2, -1 - BUG_SIZE, -1 - BUG_SIZE)
+            canvas.moveto(beeper, CANVAS_WIDTH+1, CANVAS_HEIGHT+1)
+
+        #Test to see if code bug attack and Karel share space. If true, moves attack and karel off screen to simulate deletion.
+        if attack_hit_karel(canvas, karel):
+            canvas.moveto(karel, -5000, 5000)
 
         canvas.update()
         time.sleep(1/50)
 
-def bug_hits_right_wall(canvas, BUG):
-    bug_coord = canvas.coords(BUG)
+
+def code_bug_attacks(canvas, code_bug, attack, count):
+    bug_coord = canvas.coords(code_bug)
+    x1 = bug_coord[0] + (BUG_SIZE/2)
+    y1 = bug_coord[3] + 5
+    canvas.moveto(attack, x1,y1)
+    count += 1
+    return count
+
+def bug_hits_right_wall(canvas, code_bug):
+    bug_coord = canvas.coords(code_bug)
     return bug_coord[2] >= CANVAS_WIDTH and bug_coord[2] < CANVAS_WIDTH + 100
-def bug_hits_left_wall(canvas, BUG):
-    bug_coord = canvas.coords(BUG)
+def bug_hits_left_wall(canvas, code_bug):
+    bug_coord = canvas.coords(code_bug)
     return bug_coord[0] <= 0 and bug_coord[0] > -100
 
-def beeper_hit_bugs(canvas, BUG):
-    bug_coord = canvas.coords(BUG)
-    x1bug = bug_coord[0]
-    y1bug = bug_coord[1]
-    x2bug = bug_coord[2]
-    y2bug = bug_coord[3]
-    result = canvas.find_overlapping(x1bug,y1bug,x2bug,y2bug)
-    return len(result) > 1
+def attack_hit_karel(canvas, karel):
+    karel_coord = canvas.coords(karel)
+    x1k, y1k, x2k, y2k = karel_coord[0], karel_coord[1], karel_coord[2], karel_coord[3]
+    result = canvas.find_overlapping(x1k, y1k, x2k, y2k)
+    return len(result) > 2
 
-def mouse_left_click(event, canvas, KAREL, BEEPER):
-    karel_coord = canvas.coords(KAREL)
+def beeper_hit_bugs(canvas, code_bug):
+    bug_coord = canvas.coords(code_bug)
+    x1bug, y1bug, x2bug, y2bug = bug_coord[0], bug_coord[1], bug_coord[2], bug_coord[3]
+    result = canvas.find_overlapping(x1bug, y1bug, x2bug, y2bug)
+    return len(result) > 2
+
+def mouse_left_click(event, canvas, karel, beeper):
+    karel_coord = canvas.coords(karel)
     x1 = karel_coord[0]
     y1 = karel_coord[1]
-    canvas.moveto(BEEPER,x1, y1 - BEEPER_SIZE)
+    canvas.moveto(beeper,x1, y1 - BEEPER_SIZE)
 
 
 
